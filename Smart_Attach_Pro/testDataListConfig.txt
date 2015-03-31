@@ -1,4 +1,4 @@
 Client OS : Citrix,Linux - 32 Bit,Linux - 64 Bit,MAC OS X,N/A,Quest,Windows 7 - 32 Bit,Windows 7 - 64 Bit,Windows vista - 32 Bit,Windows vista - 64 Bit,Windows XP - 32 Bit,Windows XP - 64 Bit
-OS : a,a,b
+OS : A,B,C
 Domain : 1201dep,1201eng,Integration,Solution,Provide,Surround,1201expkg,1501 dep,1501 eng,1501exp,Deployment,Regression,12depstp,12stpeng,clm_cert,clm_dep,Autocert
 Method : Manual,Automated

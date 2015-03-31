@@ -1,6 +1,6 @@
-Clint OS : Citrix
-Domain : Integration
-Test Execution Method : Manual
-Soulution : PowerChart Message Center
-Operating System : Windows Server 2008 R2
-
+Client OS/Enviroment :  Citrix
+OS : A
+Domain :  1201dep
+Execution Method :  Manual
+Solution : 
+Test Data : 

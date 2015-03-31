@@ -1,7 +1,7 @@
 __author__ = 'ZA028309'
 
 
-#import pyscreenshot as ImageGrab
+import pyscreenshot as ImageGrab
 #import Tkinter, tkFileDialog, Tkconstants
 from Tkinter import *
 import Tkinter as tk
@@ -23,34 +23,31 @@ from win32com.client import Dispatch
 import pythoncom
 #import tktable
 
-'''
-class MyDialog:
-    def __init__(self, parent):
-        top = self.top = tk.Toplevel(parent)
-        top.geometry("300x200")
-        self.myLabel = tk.Label(top, text="Client OS")
-        self.myLabel.pack()
+def qcRunData(working_dir):
+    global clientText,osText, domainText, executionText, solutionText, testDataText
+    qcRunDataFile = working_dir+"\QcRunData.txt"
+    if os.path.exists(qcRunDataFile):
+        os.remove(qcRunDataFile)
+    f = open(qcRunDataFile,'w')
+    clientVariable = clientText.get()
+    osVariable = osText.get()
+    domainVariable = domainText.get()
+    executionVariable = executionText.get()
+    solutionVariable = solutionText.get()
+    testDataVariable = testDataText.get()
+    f.write("Client OS/Enviroment : "+clientVariable+'\n')
+    f.write("OS : "+osVariable+'\n')
+    f.write("Domain : "+domainVariable+'\n')
+    f.write("Execution Method : "+executionVariable+'\n')
+    f.write("Solution : "+solutionVariable+'\n')
+    f.write("Test Data : "+testDataVariable+'\n')
+    f.close()
+    return "Created"
 
-        self.myEntryBox = tk.Entry(top)
-        self.myEntryBox.pack()
 
-        self.myLabel1 = tk.Label(top, text='Enviro')
-        self.myLabel1.pack()
-
-        self.myEntryBox1 = tk.Entry(top)
-        self.myEntryBox1.pack()
-
-        self.mySubmitButton = tk.Button(top, text='Submit', command=self.send)
-        self.mySubmitButton.pack()
-
-    def send(self):
-        global username
-        username = self.myEntryBox.get()
-        self.top.destroy()
-'''
 class FirstFrame():
 
-    def __init__(self, root, childFrameone, childFrametwo,childFramethree,childFrameUtil):
+    def __init__(self, root, childFrameone, childFrametwo, childFramethree, childFrameUtil, tab1, tab2):
         #self.root = rootLable
         self.fileName(childFrameone)
         self.utilFrame(childFrameUtil)
@@ -58,7 +55,7 @@ class FirstFrame():
         self.screenPrintFrame(childFramethree)
 
     def fileName(self, panel):
-        global tsPlanName,qcSelected,tsPLanId
+        global tsPlanName,qcSelected, tsPLanId, clientText,osText, domainText, executionText, solutionText, testDataText
         tsPlanName = StringVar()
         tsPlanName.set("")
         var = IntVar()
@@ -81,44 +78,43 @@ class FirstFrame():
         R2.grid(row=0, columnspan=2, padx=140,sticky=E)
 
         loadImageicon = ImageTk.PhotoImage(file=working_dir+"/icons/load_icon_2X.png")
-        loadButton = Button(panel, image=loadImageicon,  text="Load",compound=TOP,  command=lambda: self.loadPlan(tsIdField), width=60, height=60)
+        loadButton = Button(panel, image=loadImageicon,  text="Load",compound=TOP,
+                            command=lambda: self.loadPlan(tsIdField,tab2), width=60, height=60)
         loadButton.image = loadImageicon
         #loadButton.grid(rowspan=1, columnspan=3, sticky=NSEW, padx=(730,20))
-        loadButton.grid(row=1, column=2,rowspan=2, sticky=NE, padx=20)
+        loadButton.grid(row=0, column=2,rowspan=2, sticky=NE, padx=20)
 
         f = open(working_dir+'\\testDataListConfig.txt','r')
         listDatafile = f.readlines()
         #print listDatafile
         clientData =  listDatafile[0].split(":")[1].split(",")
-        clientVariable = StringVar()
         clientLable = Label(panel,text="Client OS/Enviroment")
         clientLable.grid(row=0, column=4, padx=10, sticky=E)
-        clientText = ttk.Combobox(panel, textvariable=clientVariable)
+        clientText = ttk.Combobox(panel)#, textvariable=clientVariable)
         clientText['values'] = (clientData)
         clientText.current(0)
         clientText.grid(row=0, column=5, padx=5, sticky=W)
 
-        osVariable = StringVar()
-        #osData =  listDatafile[1].split(",")
+        osData =  listDatafile[1].split(",")[1].split(",")
         osLable = Label(panel,text="OS")
         osLable.grid(row=0, column=6, padx=10, sticky=E)
-        osText = ttk.Combobox(panel, textvariable=osVariable)
-        osText['values'] = ('A', 'B', 'C')
+        osText = ttk.Combobox(panel)#, textvariable=osData)
+        osText['values'] = osData
         osText.current(0)
         osText.grid(row=0, column=7, padx=5, sticky=W)
 
         domainData =listDatafile[2].split(":")[1].split(",")
         domainLable = Label(panel,text="Domain")
         domainLable.grid(row=1, column=4, padx=10, sticky=E)
-        domainText = ttk.Combobox(panel, textvariable=osVariable)
+        domainText = ttk.Combobox(panel)#, textvariable=osVariable)
         domainText['values'] = domainData
         domainText.current(0)
         domainText.grid(row=1, column=5, padx=5, sticky=W)
 
         executionData =listDatafile[3].split(":")[1].split(",")
-        executionLable = Label(panel,text="Execution Method")
+        executionLable = Label(panel)#,text="Execution Method")
         executionLable.grid(row=1, column=6, padx=5, sticky=E)
-        executionText = ttk.Combobox(panel, textvariable=executionData)
+        executionText = ttk.Combobox(panel)#, textvariable=executionData)
         executionText['values'] = executionData
         executionText.current(0)
         executionText.grid(row=1, column=7, padx=5, sticky=W)
@@ -138,42 +134,22 @@ class FirstFrame():
         radioSelection = str(var.get())
         print radioSelection
 
+    def testPreReq(self,tab2):
+
+        print selecedFileName
+        selecedFileName1 = selecedFileName.split('.')[0]
+        f1 = open(working_dir+'\Evidence\\'+selecedFileName1+'\\Test_preReq.txt','r')
+        listDatafile = f1.readlines()
+        listbox = Listbox(tab2,height=15)
+        for item in listDatafile:
+            listbox.insert(END, "  "+item)
+        listbox.pack(fill='both', padx=(6,6), pady=2)
+        #listbox.insert(END, listDatafile)
+
 
     def testPlans(self, panel2):
         global stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue,noOfScreenPrints
-        table_Names = ['No', 'Steps','Status']
-        treeColumn = len(table_Names)
-        container = tk.Frame(panel2, height='4')
-        container.pack(fill='x', expand=True)
-        ##-------------------------------------------------------------------------------------------
-        tree = ttk.Treeview(container,height="5", columns=('No', 'Steps','Status'),selectmode="extended")
-        tree.heading('0', text='No', anchor=W)
-        tree.heading('1', text='Steps', anchor=W)
-        tree.heading('2', text='Status', anchor=W)
-        tree.column('0', stretch=NO, minwidth=0, width=20)
-        tree.column('1', stretch=NO, minwidth=0, width=300)
-        tree.column('2', stretch=NO, minwidth=0, width=300)
-        #tree.column('#0', stretch=NO, minwidth=0, width=0) #width 0 to not display it
-        #tree.insert("","", index="end",text="1",tags=("#1"))
-        tree.insert("","1","",text="1")
-        #tree.ins
-        tree.insert("","2","",text="Step 1")
-        tree.insert("","3","",text="Pass")
-        #vsb = ttk.Scrollbar(orient="vertical",command= tree.yview)
-        #hsb = ttk.Scrollbar(orient="horizontal",command= tree.yview)
-        #tree.configure(yscrollcommand=vsb.set)#,xscrollcommand=hsb.set)
-        tree.grid(column=0, row=2, sticky='w', in_=container)
-        #vsb.grid(column=treeColumn, sticky='ns', in_=container)
-        #hsb.grid(column=treeColumn, row=1, sticky='ew', in_=container)
-        container.grid_columnconfigure(2, weight=1)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid(columnspan=treeColumn, sticky=W)
 
-        #tssss = Label(panel2,width=2,height=12,text="Help")
-        #tssss.grid(row=0,columnspan=4, sticky=W)
-
-
-        ##---------------------------------------------------------------------------------------------
         texts = "Data"
         tpStepName = Label(panel2, width=2, text="Steps", fg="#474751")
         tpStepName.grid(row=1, column=0, padx=5, pady=3, sticky=NSEW)
@@ -190,14 +166,14 @@ class FirstFrame():
         #Excel row Column Data
         stepText = Text(panel2, borderwidth=2, relief="sunken", bg='gray', width=10, height=9)
         stepText.config(font=("arial", 11), undo=True, wrap='word')
-        stepText.insert(END, stpNumberValue)
+        stepText.insert(END, "  "+stpNumberValue)
         stepText.grid(row=2, column=0, sticky="nsew", padx=2, pady=6)
 
         scrollbar1 = Scrollbar(panel2)
         scrollbar1.grid(row=2, column=1)
         text = Text(panel2, borderwidth=2, font=("arial", 11), wrap=WORD, relief="sunken", bg='gray', width=50,
                     height=11, yscrollcommand=scrollbar1.set)
-        text.insert(END, stpDesctiptionValue)
+        text.insert(END, "  "+stpDesctiptionValue)
         text.grid(row=2, column=1, padx=1, pady=5)
         scrollbar1.config(command=text.yview)
 
@@ -205,7 +181,7 @@ class FirstFrame():
         scrollbar2.grid(row=2, column=2)
         text = Text(panel2, borderwidth=2, font=("arial", 11), wrap=WORD, relief="sunken", bg='gray', width=50,
                     height=11, yscrollcommand=scrollbar2.set)
-        text.insert(END, stpExpectedValue)
+        text.insert(END, "  "+stpExpectedValue)
         text.grid(row=2, column=2, padx=1, pady=5)
         scrollbar2.config(command=text.yview)
 
@@ -244,7 +220,8 @@ class FirstFrame():
         else:
             modeRoeCount = rowCount
         remainingRowCount = StringVar()
-        remainingRowCount.set("Remaining Steps : %d  " %modeRoeCount)
+        #remainingRowCount.set("Remaining Steps : %d  " %modeRoeCount)
+        remainingRowCount.set("Steps Completed : 0")
         stepCount = Label(childFramethree, textvariable=remainingRowCount, relief=SUNKEN, borderwidth=1, fg="#26263A", bg='gray', width=25)
         #stepCount.pack(side=LEFT, padx=5, pady=5)
         stepCount.grid(row=0, column=0, sticky="nsew", padx=10, pady=(20,20))
@@ -277,51 +254,64 @@ class FirstFrame():
     def screenPrintFrame(self,childFramethree):
 
         iconDir = working_dir + '/icons/'
-
+        '''
         flushImageicon = ImageTk.PhotoImage(file=iconDir+"flush_icon_2X.png")
-        imgFlushButton = Button(childFramethree, text="Flush Img", image=flushImageicon,width=60, height=70,
+        imgFlushButton = Button(childFramethree, text="Flush Img", image=flushImageicon,width=75, height=70,
                                 compound=TOP, command=lambda: self.flushImage("Flush"))
         imgFlushButton.image = flushImageicon
         #imgFlushButton.pack(side=LEFT, padx=5, pady=5)
-        imgFlushButton.grid(row=0, column=1, sticky="nsew", padx=4, pady=6)
-
+        imgFlushButton.grid(row=0, column=1, sticky="nsew", padx=20, pady=6)
+        '''
         undoImageicon = ImageTk.PhotoImage(file=iconDir+"undo_button_2X.png")
-        undoButton = Button(childFramethree, image=undoImageicon,  text="Undo", width=60, height=70,compound=TOP,
+        undoButton = Button(childFramethree, image=undoImageicon,  text="Undo", width=75, height=70,compound=TOP,
                             command=lambda: self.stepStatus("Undo"))
         undoButton.image = undoImageicon
         #undoButton.pack(side=LEFT, padx=10, pady=5)
-        undoButton.grid(row=0, column=2, sticky="nsew", padx=4, pady=6)
+        undoButton.grid(row=0, column=1, sticky="nsew", padx=13, pady=6)
 
         bustImageicon = ImageTk.PhotoImage(file=iconDir+"bust_mode_icon_2X.png")
-        bustButton = Button(childFramethree, image=bustImageicon, text="Bust Mode", width=60, height=70,
+        bustButton = Button(childFramethree, image=bustImageicon, text="Bust Mode", width=75, height=70,
                             compound=TOP, command=lambda: self.captureImage("Bust"))
         bustButton.image = bustImageicon
         #bustButton.pack(side=LEFT, padx=10, pady=5)
-        bustButton.grid(row=0, column=3, sticky="nsew", padx=4, pady=6)
+        bustButton.grid(row=0, column=2, sticky="nsew", padx=13, pady=6)
 
         singleImageicon = ImageTk.PhotoImage(file=iconDir+"single_capture_icon_2X.png")
-        singleButton = Button(childFramethree, image=singleImageicon, text="Single Capture", width=60, height=70,
+        singleButton = Button(childFramethree, image=singleImageicon, text="Single Capture", width=75, height=70,
                               compound=TOP,command=lambda: self.captureImage("Single"))
         singleButton.image = singleImageicon
-        #singleButton.pack(side=LEFT, padx=10, pady=5)
-        singleButton.grid(row=0, column=4, sticky="nsew", padx=4, pady=6)
+        singleButton.grid(row=0, column=3, sticky="nsew", padx=13, pady=6)
+
+        reportImageicon = ImageTk.PhotoImage(file=iconDir+"Save _attach.png")
+        imgReportButton = Button(childFramethree, image=reportImageicon, text="Report/Log", width=75, height=70,
+                                compound=TOP, command=lambda: self.captureImage("Single"))
+        imgReportButton.image = reportImageicon
+        #imgReportButton.pack(side=LEFT, padx=5, pady=5)
+        imgReportButton.grid(row=0, column=4, sticky="nsew", padx=13, pady=6)
+
+
 
         generateImageicon = ImageTk.PhotoImage(file=iconDir+"generate_icon_2X.png")
-        generateButton = Button(childFramethree, image=generateImageicon, text="Generate", width=60, height=70,
+        generateButton = Button(childFramethree, image=generateImageicon, text="Generate", width=75, height=70,
                                 compound=TOP, command=self.generate)
         generateButton.image = generateImageicon
+        #generateButton.config(state='disabled')
         #generateButton.pack(side=LEFT, padx=10, pady=5)
-        generateButton.grid(row=0, column=5, sticky="nsew", padx=4, pady=6)
+        generateButton.grid(row=0, column=5, sticky="nsew", padx=13, pady=6)
 
         qcRunImageicon = ImageTk.PhotoImage(file=iconDir+"qcRun_icon_2X.png")
-        runQCButton = Button(childFramethree,image=qcRunImageicon, text="Run QC", width=60, height=70, compound=TOP,
+        runQCButton = Button(childFramethree,image=qcRunImageicon, text="Run QC", width=75, height=70, compound=TOP,
                              command=self.callQC)
         runQCButton.image = qcRunImageicon
         #runQCButton.pack(side=LEFT, padx=10, pady=5)
-        runQCButton.grid(row=0, column=6, sticky="nsew", padx=4, pady=6)
+        runQCButton.grid(row=0, column=6, sticky="nsew", padx=13, pady=6)
 
     def generate(self):
         global stepResult, crNumberArray, srNumberArray, commentsArray
+
+        creatStatus = qcRunData(working_dir)
+        print creatStatus
+
         generateFile(selecedFileName,stepResult, crNumberArray, srNumberArray, commentsArray, noOfScreenPrints)
         time.sleep(1)
         tkMessageBox.showinfo(title="Process Completed", message="Plan Evidence Created")
@@ -365,11 +355,12 @@ class FirstFrame():
             ImageGrab.grab().save(screenPrintFolder+'\\%s-%d.png' %(stpNumberValue, bustFlag), "PNG")
         time.sleep(1)
         root.deiconify()
+        root.state('zoomed')
 
 
-    def loadPlan(self,tsIdField):
-        global tsPlanName,rowCount,remainingRowCount,selecedFileName,radioSelection,tsPLanId
-        global stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue
+    def loadPlan(self,tsIdField, tab2):
+        global tsPlanName, rowCount,remainingRowCount, selecedFileName, radioSelection, tsPLanId, nextCount
+        global stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue
 
         print "radioSelection", radioSelection
         tsPLanId = tsIdField.get()
@@ -379,7 +370,7 @@ class FirstFrame():
             #try:
             if(radioSelection == '1'):
                 print "QC call"
-                selecedFileName = call_QC_Load(tsPLanId,working_dir)
+                selecedFileName = call_QC_Load(tsPLanId, working_dir)
                 print selecedFileName
 
             elif(radioSelection == '2'):
@@ -390,14 +381,18 @@ class FirstFrame():
 
             tsPlanName.set(selecedFileName)
             #print tsPlanName
-            rowCount = getRowCount(selecedFileName,working_dir,radioSelection)
-            remainingRowCount.set(" Remaining Steps : %d  " %rowCount)
+            if(selecedFileName!=""):
+                rowCount = getRowCount(selecedFileName,working_dir,radioSelection)
+                #remainingRowCount.set(" Remaining Steps : %d  " %rowCount)
 
-            #get the Date from the Excel Sheet (i.e step Number, Description,.....)
+                remainingRowCount.set(" Steps Completed : %d/%d  " %((rowCount-rowCount), (rowCount+1)))
 
-            stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue = getData(rowCount,undoFlageChange)
-            print stpNumberValue
-            self.testPlans(childFrametwo)
+                #get the Date from the Excel Sheet (i.e step Number, Description,.....)
+
+                stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue = getData(rowCount, undoFlageChange)
+                print stpNumberValue
+                self.testPlans(tab2)
+                self.testPreReq(tab1)
 
             #except:
                 #print "File Not Selected"
@@ -407,7 +402,7 @@ class FirstFrame():
     def stepStatus(self, status):
 
         global rowCount, remainingRowCount, nextCount, stepResult, crNumberArray, srNumberArray, commentsArray
-        global tsPlanName, rowCount, remainingRowCount, bustFlag, undoFlageChange
+        global tsPlanName, bustFlag, undoFlageChange
         global stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue
         ######
         global crNumber,srNumber,commentstext
@@ -452,16 +447,17 @@ class FirstFrame():
         print stpExpectedValue
         print stpEvidenceValue
 
+        print nextCount,rowCount
         if(stpNumberValue != None):
-            rowCount -= 1
-            remainingRowCount.set(" Remaining Steps : %d  " %rowCount)
-            self.testPlans(childFrametwo)
+            #rowCount -= 1
+            remainingRowCount.set(" Steps Completed : %d/%d  " %(nextCount, (rowCount+1)))
+            self.testPlans(tab2)
             nextCount += 1
         else:
-            tkMessageBox.showinfo("Warning", "End of Steps")
+            remainingRowCount.set(" Steps Completed : %d/%d  " %(nextCount, (rowCount+1)))
+            tkMessageBox.showinfo("Execution Status", "End of Steps")
+
         bustFlag = 0
-
-
 
 
 tsPLanId = None
@@ -483,11 +479,13 @@ noOfScreenPrints = 0
 bustFlag = 0
 undoFlageChange = False
 radioSelection = ''
+clientText,osText, domainText, executionText, solutionText, testDataText = "","","","","",""
 
 if __name__ == '__main__':
     root = tk.Tk()
-    root.geometry("1080x790")
-    root.title('Smart_Attach')
+    #root.geometry("1080x790")
+    root.title("Smart Attach Pro")
+    root.state('zoomed')
     frameLabel1 = LabelFrame(root, text="Powered by Cerner india", fg="dark gray")
     frameLabel1.pack(fill="both", expand="yes", padx=7, pady=7)
 
@@ -498,7 +496,14 @@ if __name__ == '__main__':
     childFrametwo.place(y=400)
     childFrametwo.pack(anchor="s", fill="both", padx=10, pady=5)
 
-    childFrameUtil = LabelFrame(frameLabel1, text="Uitility")
+    note = ttk.Notebook(childFrametwo)
+    tab1 = Frame(note)
+    tab2 = Frame(note)
+    note.add(tab1, text="PreReq-Details", compound=TOP)
+    note.add(tab2, text="Design Steps")
+    note.pack(anchor="s", fill="both", padx=10, pady=6)
+
+    childFrameUtil = LabelFrame(frameLabel1, text="Utility")
     childFrameUtil.place(y=400)
     childFrameUtil.pack(anchor="s", fill="both", padx=10, pady=6)
 
@@ -506,8 +511,6 @@ if __name__ == '__main__':
     childFramethree.place(y=400)
     childFramethree.pack(anchor="s", fill="both", padx=10, pady=(5,15))
 
-
-    FirstFrame(frameLabel1, childFrameone, childFrametwo,childFramethree,childFrameUtil)
+    FirstFrame(frameLabel1, childFrameone, childFrametwo,childFramethree, childFrameUtil, tab1, tab2)
 
     root.mainloop()
-

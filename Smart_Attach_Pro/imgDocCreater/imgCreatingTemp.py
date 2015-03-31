@@ -77,10 +77,12 @@ def generateFile(selecedFileName,stepResult,crNumberArrya, srNumberArrya, commen
             except:
                 pass
     client = array[0]
-    domain = array[1]
-    tcExecution = array[2]
-    solution = array[3]
-    sysOS = array[4]
+    sysOS = array[1]
+    domain = array[2]
+    tcExecution = array[3]
+    solution = array[4]
+    testData = array[5]
+
 
     ####
     imdDocFolder = os.path.dirname(working_dir+'\\imgDocCreater')
@@ -117,8 +119,9 @@ def generateFile(selecedFileName,stepResult,crNumberArrya, srNumberArrya, commen
     body = document.xpath('/w:document/w:body', namespaces=nsprefixes)[0]
 
     tbl_startrow = [['Test Plan Name:',selecedFileName,'',''],['Solution(s):',solution,'',''],
-            ['Created Date:',formated_date,'No. Of Steps Requiring Evidence',str(noOfScreenPrints)],['Enviroment:',client,'Operating System:',sysOS],
-            ['Associate ID:',systemName,'Domain:',domain],['Test Data:','N/A','','']
+            ['Created Date:',formated_date,'No. Of Steps Requiring Evidence',str(noOfScreenPrints)],
+            ['Enviroment:',client,'Operating System:',sysOS], ['Associate ID:',systemName,'Domain:',domain],
+            ['Test Data:',testData,'','']
             ]
     tblContent1 = table(tbl_startrow, heading=False, borders={'all': {'sz': 7, 'color': '#000000', 'val': 'single'}},
                            cwunit='pct', tblw=5300, twunit='pct')

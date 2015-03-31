@@ -1,0 +1,17 @@
+Prerequisites: 
+1. Identify a user having access to phaclaimmonitor.exe
+2. Identify a product P1 in retail Product tool PhaDBRxProduct.exe. Also make note of the Additional Drug identifier
+3. Identify an Active Claim Format "HAAD standard Format" with HAAD fields defined in PhaDBTools->Retail tab->Claim Format tool
+4. Identify or create a health plan with the HAAD claim format (CDF meaning of associated Claim Format’s Type (code set #4516) has "HD10").  
+5. Identify and set a retail pharmacy as default dispense location in PhaWorkstation.exe
+6. Create a patient with a retail encounter, place an order (order1) for the product identified in the prerequisite 2 with the health plan identified in prerequisite step 4. (note the details)
+7. Make sure that the Authorization ID generation has been configured.
+
+
+
+
+
+Change Control:
+
+Date:        User:        Requirements:        Reason:
+09/23/2014    VS021174      multiple        Initial Design
