@@ -2,12 +2,11 @@ __author__ = 'ZA028309'
 
 
 import pyscreenshot as ImageGrab
-#import Tkinter, tkFileDialog, Tkconstants
 from Tkinter import *
 import Tkinter as tk
 import ttk
-#import Tkinter.ttk as ttk
 import tkMessageBox
+import tkMessageBox as box
 from tkFileDialog import askopenfilename
 from PIL import ImageTk, Image
 #from docx import *
@@ -17,11 +16,13 @@ import time,os,sys
 import subprocess
 from readExcelFileCopy import *
 from imgDocCreater.imgCreatingTemp import *
-import zlib
+import zlib, base64
 from qcTestDownload import *
 from win32com.client import Dispatch
 import pythoncom
-#import tktable
+from ttk import Frame, Button, Style
+from Tkinter import Tk, BOTH
+
 
 def qcRunData(working_dir):
     global clientText,osText, domainText, executionText, solutionText, testDataText
@@ -47,14 +48,14 @@ def qcRunData(working_dir):
 
 class FirstFrame():
 
-    def __init__(self, root, childFrameone, childFrametwo, childFramethree, childFrameUtil, tab1, tab2):
+    def __init__(self,root, frameLabel1, childFrameone, childFrametwo,childFramethree, childFrameUtil, tab1, tab2):
         #self.root = rootLable
-        self.fileName(childFrameone)
-        self.utilFrame(childFrameUtil)
-        self.countFrame(childFramethree)
-        self.screenPrintFrame(childFramethree)
+        self.fileName(tab1, tab2,childFrameone)
+        self.utilFrame(root,childFrameUtil)
+        self.countFrame(root,childFramethree)
+        self.screenPrintFrame(root,childFramethree,tab2)
 
-    def fileName(self, panel):
+    def fileName(self,tab1, tab2, panel):
         global tsPlanName,qcSelected, tsPLanId, clientText,osText, domainText, executionText, solutionText, testDataText
         tsPlanName = StringVar()
         tsPlanName.set("")
@@ -79,7 +80,7 @@ class FirstFrame():
 
         loadImageicon = ImageTk.PhotoImage(file=working_dir+"/icons/load_icon_2X.png")
         loadButton = Button(panel, image=loadImageicon,  text="Load",compound=TOP,
-                            command=lambda: self.loadPlan(tsIdField,tab2), width=60, height=60)
+                            command=lambda: self.loadPlan(tsIdField, tab1 ,tab2))
         loadButton.image = loadImageicon
         #loadButton.grid(rowspan=1, columnspan=3, sticky=NSEW, padx=(730,20))
         loadButton.grid(row=0, column=2,rowspan=2, sticky=NE, padx=20)
@@ -148,6 +149,7 @@ class FirstFrame():
 
 
     def testPlans(self, panel2):
+        ### panel2 = tab2 #####
         global stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue,noOfScreenPrints
 
         texts = "Data"
@@ -165,13 +167,14 @@ class FirstFrame():
 
         #Excel row Column Data
         stepText = Text(panel2, borderwidth=2, relief="sunken", bg='gray', width=10, height=9)
-        stepText.config(font=("arial", 11), undo=True, wrap='word')
+        stepText.config(undo=True, wrap='word')
+        stepText.config()
         stepText.insert(END, "  "+stpNumberValue)
         stepText.grid(row=2, column=0, sticky="nsew", padx=2, pady=6)
 
         scrollbar1 = Scrollbar(panel2)
         scrollbar1.grid(row=2, column=1)
-        text = Text(panel2, borderwidth=2, font=("arial", 11), wrap=WORD, relief="sunken", bg='gray', width=50,
+        text = Text(panel2, borderwidth=2, wrap=WORD, relief="sunken", bg='gray', width=50,
                     height=11, yscrollcommand=scrollbar1.set)
         text.insert(END, "  "+stpDesctiptionValue)
         text.grid(row=2, column=1, padx=1, pady=5)
@@ -179,13 +182,13 @@ class FirstFrame():
 
         scrollbar2 = Scrollbar(panel2)
         scrollbar2.grid(row=2, column=2)
-        text = Text(panel2, borderwidth=2, font=("arial", 11), wrap=WORD, relief="sunken", bg='gray', width=50,
+        text = Text(panel2, borderwidth=2, wrap=WORD, relief="sunken", bg='gray', width=50,
                     height=11, yscrollcommand=scrollbar2.set)
         text.insert(END, "  "+stpExpectedValue)
         text.grid(row=2, column=2, padx=1, pady=5)
         scrollbar2.config(command=text.yview)
 
-        stepEvid = Text(panel2, borderwidth=2, font=("arial", 10), relief="sunken", bg='gray', width=18,height=9)
+        stepEvid = Text(panel2, borderwidth=2, relief="sunken", bg='gray', width=18,height=9)
         stepEvid.insert(END, stpEvidenceValue)
         stepEvid.grid(row=2, column=3, sticky="nsew", padx=2, pady=6)
 
@@ -193,16 +196,16 @@ class FirstFrame():
             noOfScreenPrints+=1
 
 
-        passButton = Button(panel2, width=7, text='Pass', fg="green", command=lambda: self.stepStatus("Pass"))
-        passButton.config(font=("arial", 12,"bold"))
+        passButton = Button(panel2, width=7, text='Pass', command=lambda: self.stepStatus("Pass",panel2))
+        #passButton.config()
         passButton.grid(row=2, column=5, rowspan=2, sticky="n", padx=8, pady=10)
 
-        failButton = Button(panel2, width=7, text='Fail', fg="red", command=lambda: self.stepStatus("Fail"))
-        failButton.config(font=("arial", 12,"bold"))
+        failButton = Button(panel2, width=7, text='Fail', command=lambda: self.stepStatus("Fail",panel2))
+        #failButton.config(font=("arial", 12,"bold"))
         failButton.grid(row=2, column=5,rowspan=2, sticky="n", padx=8, pady=50)
 
-        naButton = Button(panel2, width=7, text='N/A', fg="gray", command=lambda: self.stepStatus("N/A"))
-        naButton.config(font=("arial", 12,"bold"))
+        naButton = Button(panel2, width=7, text='N/A', command=lambda: self.stepStatus("N/A",panel2))
+        #naButton.config(font=("arial", 12,"bold"))
         naButton.grid(row=2, column=5,rowspan=2, sticky="n", padx=8, pady=90)
 
         '''
@@ -212,7 +215,7 @@ class FirstFrame():
         '''
 
 
-    def countFrame(self, childFramethree):
+    def countFrame(self, root,childFramethree):
         global rowCount, remainingRowCount
         print rowCount
         if (rowCount ==1):
@@ -226,7 +229,7 @@ class FirstFrame():
         #stepCount.pack(side=LEFT, padx=5, pady=5)
         stepCount.grid(row=0, column=0, sticky="nsew", padx=10, pady=(20,20))
 
-    def utilFrame(self,childFrameUtil):
+    def utilFrame(self,root ,childFrameUtil):
         global crNumber,srNumber,commentstext
 
         crNumberLable = Label(childFrameUtil, width=7, text="CR No : ", fg="#474751")
@@ -248,10 +251,8 @@ class FirstFrame():
         commentstext = commentsText
 
 
-
-
     ########### Frame Three ##########
-    def screenPrintFrame(self,childFramethree):
+    def screenPrintFrame(self,root,childFramethree,tab2):
 
         iconDir = working_dir + '/icons/'
         '''
@@ -263,44 +264,42 @@ class FirstFrame():
         imgFlushButton.grid(row=0, column=1, sticky="nsew", padx=20, pady=6)
         '''
         undoImageicon = ImageTk.PhotoImage(file=iconDir+"undo_button_2X.png")
-        undoButton = Button(childFramethree, image=undoImageicon,  text="Undo", width=75, height=70,compound=TOP,
-                            command=lambda: self.stepStatus("Undo"))
+        undoButton = Button(childFramethree, image=undoImageicon,  text="Undo",compound=TOP, width=15,
+                            command=lambda: self.stepStatus("Undo",root))
         undoButton.image = undoImageicon
         #undoButton.pack(side=LEFT, padx=10, pady=5)
         undoButton.grid(row=0, column=1, sticky="nsew", padx=13, pady=6)
 
         bustImageicon = ImageTk.PhotoImage(file=iconDir+"bust_mode_icon_2X.png")
-        bustButton = Button(childFramethree, image=bustImageicon, text="Bust Mode", width=75, height=70,
-                            compound=TOP, command=lambda: self.captureImage("Bust"))
+        bustButton = Button(childFramethree, image=bustImageicon, text="Bust Mode", width=15,
+                            compound=TOP, command=lambda: self.captureImage("Bust",root))
         bustButton.image = bustImageicon
         #bustButton.pack(side=LEFT, padx=10, pady=5)
         bustButton.grid(row=0, column=2, sticky="nsew", padx=13, pady=6)
 
         singleImageicon = ImageTk.PhotoImage(file=iconDir+"single_capture_icon_2X.png")
-        singleButton = Button(childFramethree, image=singleImageicon, text="Single Capture", width=75, height=70,
-                              compound=TOP,command=lambda: self.captureImage("Single"))
+        singleButton = Button(childFramethree, image=singleImageicon, text="Single Capture",
+                              compound=TOP, width=15,command=lambda: self.captureImage("Single",root))
         singleButton.image = singleImageicon
         singleButton.grid(row=0, column=3, sticky="nsew", padx=13, pady=6)
 
         reportImageicon = ImageTk.PhotoImage(file=iconDir+"Save _attach.png")
-        imgReportButton = Button(childFramethree, image=reportImageicon, text="Report/Log", width=75, height=70,
-                                compound=TOP, command=lambda: self.captureImage("Single"))
+        imgReportButton = Button(childFramethree, image=reportImageicon, text="Report/Log",
+                                compound=TOP, width=15, command= self.reportImage)
         imgReportButton.image = reportImageicon
         #imgReportButton.pack(side=LEFT, padx=5, pady=5)
         imgReportButton.grid(row=0, column=4, sticky="nsew", padx=13, pady=6)
 
-
-
         generateImageicon = ImageTk.PhotoImage(file=iconDir+"generate_icon_2X.png")
-        generateButton = Button(childFramethree, image=generateImageicon, text="Generate", width=75, height=70,
-                                compound=TOP, command=self.generate)
+        generateButton = Button(childFramethree, image=generateImageicon, text="Generate",
+                                compound=TOP, width=15, command=self.generate)
         generateButton.image = generateImageicon
         #generateButton.config(state='disabled')
         #generateButton.pack(side=LEFT, padx=10, pady=5)
         generateButton.grid(row=0, column=5, sticky="nsew", padx=13, pady=6)
 
         qcRunImageicon = ImageTk.PhotoImage(file=iconDir+"qcRun_icon_2X.png")
-        runQCButton = Button(childFramethree,image=qcRunImageicon, text="Run QC", width=75, height=70, compound=TOP,
+        runQCButton = Button(childFramethree,image=qcRunImageicon, text="Run QC", compound=TOP, width=15,
                              command=self.callQC)
         runQCButton.image = qcRunImageicon
         #runQCButton.pack(side=LEFT, padx=10, pady=5)
@@ -338,7 +337,7 @@ class FirstFrame():
                 for j in files:
                     os.remove(os.path.join(mediafolder, j))
 
-    def captureImage(self, mode):
+    def captureImage(self, mode,root):
         global working_dir, stpNumberValue, bustFlag, selecedFileName
         print selecedFileName
         selectedDirName = selecedFileName.split(".")[0]
@@ -357,8 +356,14 @@ class FirstFrame():
         root.deiconify()
         root.state('zoomed')
 
+    def reportImage(self):
+        global working_dir, stpNumberValue,reportImageName
+        reportImageName = askopenfilename()
+        print reportImageName
+            #selectedFileName = reportName.split("/")[-1]
 
-    def loadPlan(self,tsIdField, tab2):
+
+    def loadPlan(self,tsIdField,tab1, tab2):
         global tsPlanName, rowCount,remainingRowCount, selecedFileName, radioSelection, tsPLanId, nextCount
         global stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue
 
@@ -399,10 +404,10 @@ class FirstFrame():
         else:
             tkMessageBox.showinfo("Warning", "Plan from QC or Local")
 
-    def stepStatus(self, status):
+    def stepStatus(self, status,panel2):
 
         global rowCount, remainingRowCount, nextCount, stepResult, crNumberArray, srNumberArray, commentsArray
-        global tsPlanName, bustFlag, undoFlageChange
+        global tsPlanName, bustFlag, undoFlageChange, reportImageName
         global stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue
         ######
         global crNumber,srNumber,commentstext
@@ -436,7 +441,7 @@ class FirstFrame():
             commentsArray.append(commentstext1)
             srNumberArray.append(srNumber1)
             crNumberArray.append(crNumber1)
-            putData(working_dir,selecedFileName,status,utilData)
+            putData(working_dir,selecedFileName,status,utilData,reportImageName)
         stpNumberValue, stpDesctiptionValue, stpExpectedValue, stpEvidenceValue = getData(status, undoFlageChange)
         crNumber.delete(0,END)
         srNumber.delete(0,END)
@@ -451,7 +456,7 @@ class FirstFrame():
         if(stpNumberValue != None):
             #rowCount -= 1
             remainingRowCount.set(" Steps Completed : %d/%d  " %(nextCount, (rowCount+1)))
-            self.testPlans(tab2)
+            self.testPlans(panel2)
             nextCount += 1
         else:
             remainingRowCount.set(" Steps Completed : %d/%d  " %(nextCount, (rowCount+1)))
@@ -460,28 +465,7 @@ class FirstFrame():
         bustFlag = 0
 
 
-tsPLanId = None
-tsPlanName = None
-selecedFileName = ''
-rowCount = 1
-nextCount = 1
-remainingRowCount = None
-stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue = "","","",""
-crNumber,srNumber,commentstext = None,None,None
-crNumber1,srNumber1,commentstext1 = "","",""
-stepNumber, stepDescription, stepExpected, stepEvidence = None,None,None,None
-working_dir = os.getcwd()
-stepResult = []
-crNumberArray =[]
-srNumberArray=[]
-commentsArray = []
-noOfScreenPrints = 0
-bustFlag = 0
-undoFlageChange = False
-radioSelection = ''
-clientText,osText, domainText, executionText, solutionText, testDataText = "","","","","",""
-
-if __name__ == '__main__':
+def App():
     root = tk.Tk()
     #root.geometry("1080x790")
     root.title("Smart Attach Pro")
@@ -511,6 +495,117 @@ if __name__ == '__main__':
     childFramethree.place(y=400)
     childFramethree.pack(anchor="s", fill="both", padx=10, pady=(5,15))
 
-    FirstFrame(frameLabel1, childFrameone, childFrametwo,childFramethree, childFrameUtil, tab1, tab2)
+    FirstFrame(root,frameLabel1, childFrameone, childFrametwo,childFramethree, childFrameUtil, tab1, tab2)
 
     root.mainloop()
+
+class Example(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+
+        self.parent = parent
+        self.initUI()
+
+    def initUI(self):
+
+        self.parent.title("QC Login")
+        self.style = Style()
+        self.style.theme_use("clam")
+        self.pack()
+
+        userLabel = Label(self, text='Username :')
+        userLabel.grid(row=0,column=0, padx=5, pady=5,sticky=W)
+        userField = Entry(self,width=30)
+        userField.grid(row=0,column=1,padx=3,pady=5)
+
+        pwdLabel = Label(self,text='Password :')
+        pwdLabel.grid(row=1,column=0,padx=5,pady=5,sticky=W)
+        pwdField = Entry(self,width=30)
+        pwdField.config(show="*")
+        pwdField.grid(row=1,column=1,padx=3,pady=5)
+
+        logDomainData = ("IP","")
+        logDomainLabel = Label(self,text="Domain")
+        logDomainLabel.grid(row=3, column=0, padx=3, sticky=W)
+        logDomainText = ttk.Combobox(self)#, textvariable=osData)
+        logDomainText['values'] = logDomainData
+        logDomainText.current(0)
+        logDomainText.grid(row=3, column=1, padx=3, pady=5, sticky=W)
+
+        logProjectData = ("TD_VALIDATION_TESTS","")
+        logProjectLabel = Label(self,text="Project")
+        logProjectLabel.grid(row=4, column=0, padx=3, sticky=W)
+        logProjectText = ttk.Combobox(self)#, textvariable=osData)
+        logProjectText['values'] = logProjectData
+        logProjectText.current(0)
+        logProjectText.grid(row=4, column=1, padx=3, pady=5, sticky=W)
+
+        login = Button(self, text="Authenticate", command=lambda: self.loginModule(userField, pwdField,
+                                                                                   logDomainText, logProjectText))
+        login['style'] = 'NuclearReactor.TButton'
+        login.grid(row=5, column=0)
+
+        cancel = Button(self, text="Cancel", command=self.cancelModule)
+        cancel.grid(row=5, column=1)
+        return sts
+
+    def loginModule(self,userField,pwdField,logDomainText,logProjectText):
+        global sts
+        user = userField.get()
+        pwd = pwdField.get()
+        dom = logDomainText.get()
+        proj = logProjectText.get()
+        print user, pwd, dom, proj
+        success = Auth(user, pwd, dom, proj)
+        #success = 'Login Completed'
+        if success == 'Login Completed':
+            sts = success
+            x = open(working_dir+"\\Credentials.txt")
+            x.write("Login User : "+user+'\n')
+            ePwd = base64.encodestring(pwd)
+            x.write("Encoded Password : "+ePwd+'\n')
+            x.write("Domain : "+dom+'\n')
+            x.write("Project : "+proj+'\n')
+            x.close()
+            box.showinfo("Information", "Authentiction Successful..!!")
+            self.parent.destroy()
+            z = App()
+            print "IN"
+
+        else:
+            box.showinfo("Information", "Authentiction Failed..!!")
+
+
+    def cancelModule(self):
+        self.parent.destroy()
+
+
+tsPLanId = None
+tsPlanName = None
+selecedFileName,reportImageName = '',''
+rowCount = 1
+nextCount = 1
+remainingRowCount = None
+stpNumberValue,stpDesctiptionValue,stpExpectedValue,stpEvidenceValue = "","","",""
+crNumber,srNumber,commentstext = None,None,None
+crNumber1,srNumber1,commentstext1 = "","",""
+stepNumber, stepDescription, stepExpected, stepEvidence = None,None,None,None
+working_dir = os.getcwd()
+stepResult = []
+crNumberArray =[]
+srNumberArray=[]
+commentsArray = []
+noOfScreenPrints = 0
+bustFlag = 0
+undoFlageChange = False
+radioSelection = ''
+clientText,osText, domainText, executionText, solutionText, testDataText = "","","","","",""
+loginMsg = "Login Successful"
+sts = ''
+
+if __name__ == '__main__':
+    root1 = Tk()
+    ex = Example(root1)
+    root1.geometry("300x200")
+    root1.mainloop()

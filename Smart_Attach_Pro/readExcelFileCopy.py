@@ -56,7 +56,7 @@ def getData(status,undoFlageChange):
         stpNumber,stpDesctiption,stpExpected,stpEvidence = (None,None,None,None)
     return stpNumber,stpDesctiption,stpExpected,stpEvidence
 
-def putData(working_dir,selecedFileName,status,utilData):
+def putData(working_dir,selecedFileName,status,utilData,reportImageName):
     print "Pud Data"
     planFolder = selecedFileName.split('.')[0]
     #copyFile = working_dir+'\Evidence\\'+planFolder+'\\Copy'+selecedFileName
@@ -75,6 +75,7 @@ def putData(working_dir,selecedFileName,status,utilData):
     sheets.Cells(rowBookCounter,6).Value = utilData[0]
     sheets.Cells(rowBookCounter,7).Value = utilData[1]
     sheets.Cells(rowBookCounter,8).Value = utilData[2]
+    sheets.Cells(rowBookCounter,9).Value = reportImageName
     workBook.Save()
     workbook.Close()
 

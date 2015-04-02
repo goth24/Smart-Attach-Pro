@@ -5,9 +5,10 @@ import win32com, win32com.client
 import xlrd,xlwt,os
 #import MySQLdb
 import sqlite3
-import ctypes
+import ctypes,sys
 import HTMLParser
 import pythoncom
+import base64
 class MLStripper(HTMLParser.HTMLParser):
     def __init__(self):
         self.reset()
@@ -88,15 +89,36 @@ def exportTests(qc, nodePath,working_dir):
         wb.save(fileName)
     return planName
 
+def getCredentials(working_dir):
+    print "Data"
+    dataList = []
+    f1 = open(working_dir+"\\Credentials.txt")
+    qcListData = f1.readlines()
+    for item in qcListData:
+        dataList.append(item.split(':')[1])
+
+    return dataList
+
 
 server= r"http://qualitycenter.cerner.com/qcbin"
-username= "VS021174"
-password= "Thanthu>86"
-domainname= "IP"
-projectname= "TD_VALIDATION_TESTS"
+#username= "VS021174"
+#password= "Thanthu>86"
+#domainname= "IP"
+#projectname= "TD_VALIDATION_TESTS"
+
+noServer = 'Server is not available'
+pwdError = 'Failed to Login'
 
 #if __name__ == "__main__":
 def call_QC_Load(tsPLanId,working_dir):
+
+    dataList = getCredentials(working_dir)
+
+    username = dataList[0]
+    password1 = dataList[1]
+    password = base64.decodestring(password1)
+    domainname = dataList[2]
+    projectname = dataList[3]
 
     print 'Logging in...'
 
@@ -119,4 +141,26 @@ def call_QC_Load(tsPLanId,working_dir):
     print "Done QC"
     return planName
 
+
+def Auth(*parms):
+    print "Auth"
+    print parms
+    try:
+        qc = win32com.client.Dispatch("TDApiOle80.TDConnection")#, clsctx=pythoncom.CLSCTX_LOCAL_SERVER)
+        qc.InitConnection(server)
+        qc.Login(parms[0],parms[1])
+        #qc.Connect(parms[2], parms[3])
+        response = "Login Completed"
+    except:
+        sysError = sys.exc_info()[1][2][2]
+        print sysError
+        if sysError == noServer:
+            response = "Check your Net Connection"
+
+        elif sysError == pwdError:
+            response = "check your"
+        else:
+            response = "Error"
+
+    return response
 
